@@ -77,10 +77,10 @@ public class DiceRollBasic : MonoBehaviour
                 currentAcceleration = Input.acceleration;
                 accelerationDelta = currentAcceleration - lastAcceleration;
 
-                // Berechne die Stärke der Bewegung (Vektor-Länge)
+                // calc the strength of movement (vector length)
                 magnitude = rotationRate.magnitude;
 
-                // Überprüfe, ob die Bewegung stark genug ist
+                // check if movement is above threshold
                 if (accelerationDelta.magnitude > thresholdMove) //&& rigidBody.velocity == Vector3.zero
                 {
                     //if (rollTimer.IsRunning)

@@ -48,10 +48,10 @@ public class DiceRoll : MonoBehaviour
         {
             Vector3 rotationRate = gyroscope.rotationRate;
 
-            // Berechne die Stärke der Bewegung (Vektor-Länge)
+            // calc the strength of movement (vector length)
             float magnitude = rotationRate.magnitude;
 
-            // Überprüfe, ob die Bewegung stark genug ist
+            // check if movement is above threshold
             if (magnitude > Threshold)
             {
                 if (rollTimer.IsRunning) return;
@@ -74,10 +74,8 @@ public class DiceRoll : MonoBehaviour
 
     void OnStrongMotionDetected()
     {
-        // Hier wird die gewünschte Funktion aufgerufen
         //Debug.Log("Starke Bewegung erkannt!");
 
-        // Beispiel: Ändere die Farbe eines Objekts
         GameObject obj = GameObject.Find("Dice_d20"); // Ersetze "YourObjectName" mit dem Namen deines Objekts
         if (obj != null)
         {
