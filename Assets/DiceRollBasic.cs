@@ -1,7 +1,6 @@
 /*todo:
  * 
  * - Deactivate autoroll button in sensor mode
- * - More smoother rolling animation(to much gliding etc.)
  * - Animations if dice hits something
  * - Animations candle etc.
  * 
@@ -21,12 +20,16 @@ public class DiceRollBasic : MonoBehaviour
     public Rigidbody rigidBody;
     GameObject rollDiceButton;
 
-    [SerializeField] private float maxRandomForceValue = 50f, startRollingForce = 10f;
+    [SerializeField] private float maxRandomForceValue = 100f, startRollingForce = 50f;
     [SerializeField] float maxRollTime = 5f;
-    [SerializeField] float customGravity = -25f;
+    [SerializeField] float customGravity = -50f;
+    [SerializeField] float dragFactor = 1f; // Simuliert Luftwiderstand
+    [SerializeField] float stopThreshold = 0.05f; // Geschwindigkeitsschwelle zum Stoppen
+    [SerializeField] float stopDelay = 1.5f; // Verzögerung, bevor das Stoppen geprüft wird
     //[SerializeField] float maxRollTime = 3f;
 
     private float forceX, forceY, forceZ;
+    private float timeBelowThreshold = 0f;
 
     public int diceSideNumb;
     CountdownTimer rollTimer;
@@ -83,19 +86,6 @@ public class DiceRollBasic : MonoBehaviour
                 // check if movement is above threshold
                 if (accelerationDelta.magnitude > thresholdMove) //&& rigidBody.velocity == Vector3.zero
                 {
-                    //if (rollTimer.IsRunning)
-                    //{
-                    //    rigidBody.AddForce(0, 0, 0);
-                    //    rollTimer.Stop();
-                    //    return;
-                    //}
-                    //else
-                    //{
-                    //    rollTimer.Start();
-                    //    RollDice();
-                    //    customGravity++;
-                    //}
-
                     RollDice();
                 }
             }
@@ -119,16 +109,42 @@ public class DiceRollBasic : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if(rigidBody != null)
+        //if (rigidBody != null)
+        //{
+        //    // Anwenden der benutzerdefinierten Gravitationskraft
+        //    rigidBody.AddForce(new Vector3(0, customGravity, 0), ForceMode.Acceleration);
+
+        //    if (accelerationDelta.magnitude < thresholdZero && !isAtRest)
+        //    {
+        //        rigidBody.velocity = Vector3.zero;
+        //        rigidBody.angularVelocity = Vector3.zero;
+        //        isAtRest = true;
+        //    }
+        //}
+
+        if (rigidBody != null && !isAtRest)
         {
-            // Anwenden der benutzerdefinierten Gravitationskraft
+            // Anwenden der benutzerdefinierten Gravitation
             rigidBody.AddForce(new Vector3(0, customGravity, 0), ForceMode.Acceleration);
 
-            if (accelerationDelta.magnitude < thresholdZero && !isAtRest)
+            // Simulierter Luftwiderstand für sanftes Abbremsen
+            rigidBody.velocity *= dragFactor;
+            rigidBody.angularVelocity *= dragFactor;
+
+            // Prüfen, ob das Objekt langsam genug ist, um gestoppt zu werden
+            if (rigidBody.velocity.magnitude < stopThreshold)
             {
-                rigidBody.velocity = Vector3.zero;
-                rigidBody.angularVelocity = Vector3.zero;
-                isAtRest = true;
+                timeBelowThreshold += Time.fixedDeltaTime;
+                if (timeBelowThreshold >= stopDelay)
+                {
+                    rigidBody.velocity = Vector3.zero;
+                    rigidBody.angularVelocity = Vector3.zero;
+                    isAtRest = true;
+                }
+            }
+            else
+            {
+                timeBelowThreshold = 0f;
             }
         }
     }
@@ -150,13 +166,13 @@ public class DiceRollBasic : MonoBehaviour
 
         if (rigidBody.velocity.magnitude < maxRandomForceValue)
         {
-            /*rigidBody.AddForce(tilt * velocity.magnitude);*/ // AddForceAtPosition(Vector3 force, Vector3 position)
             rigidBody.AddForce(forceDirection * accelerationDelta.magnitude * startRollingForce, ForceMode.Impulse);
         }
 
         lastAcceleration = currentAcceleration;
 
         isAtRest = false;
+        timeBelowThreshold = 0f;
         //rollTimer.Tick(Time.deltaTime);
 
     }
@@ -170,13 +186,6 @@ public class DiceRollBasic : MonoBehaviour
     {
         isAtRest = false;
     }
-
-    //private void AccelerateValue()
-    //{
-    //    tilt = Input.acceleration;
-
-    //    tilt = Quaternion.Euler(90, 0, 0) * tilt;
-    //}
 
     private void Initialize()
     {

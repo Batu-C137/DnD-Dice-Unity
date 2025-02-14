@@ -3236,10 +3236,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rigidBody: {fileID: 1195673116}
-  maxRandomForceValue: 50
-  startRollingForce: 10
+  maxRandomForceValue: 200
+  startRollingForce: 50
   maxRollTime: 5
   customGravity: -50
+  dragFactor: 1
+  stopThreshold: 0.05
+  stopDelay: 1.5
   diceSideNumb: 0
 --- !u!1 &1212261280
 GameObject:
